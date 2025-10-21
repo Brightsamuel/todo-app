@@ -5,6 +5,7 @@ const TaskInput = ({ onAddTask, disabled }) => {
   const [text, setText] = useState('');
   const [priority, setPriority] = useState(PRIORITIES.MEDIUM);
   const [category, setCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(''); // '' for none
 
   const handleSubmit = async (e) => {
     e.preventDefault();

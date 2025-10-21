@@ -26,7 +26,7 @@ try {
 // Global sync for all models (creates DB/tables reliably)
 const syncDatabase = async () => {
   try {
-    await sequelize.sync({ force: true }); // Temp force for reset; change to alter later
+    await sequelize.sync({ alter: true }); // Temp force for reset; change to alter later
     console.log('✅ All models synced (table recreated)');
     
     // Log DB file post-sync

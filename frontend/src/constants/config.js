@@ -5,12 +5,12 @@ export const PRIORITIES = {
   LOW: 'low'
 };
 
-// export const CATEGORIES = [
-//   { value: 'work', label: 'Work' },
-//   { value: 'personal', label: 'Personal' },
-//   { value: 'shopping', label: 'Shopping' },
-//   { value: 'other', label: 'Other' }
-// ];
+export const CATEGORIES = [
+  { value: 'work', label: 'Work' },
+  { value: 'personal', label: 'Personal' },
+  { value: 'shopping', label: 'Shopping' },
+  { value: 'other', label: 'Other' }
+];
 
 export const FILTERS = {
   ALL: 'all',

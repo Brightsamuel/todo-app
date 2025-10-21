@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext } from '@hello-pangea/dnd';
 import TaskInput from './components/TaskInput';
 import TaskList from './components/TaskList';
@@ -24,8 +24,42 @@ function App() {
     loading
   } = useTaskManager();
 
+  // Dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
+
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => !prev);
+  };
+
+  // Apply dark mode class to body
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
   return (
     <div className="app">
+      {/* Dark Mode Toggle */}
+      <div className="theme-toggle">
+        <button 
+          className="theme-toggle-btn" 
+          onClick={toggleDarkMode}
+          aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
+      </div>
+
       <header className="app-header">
         <h1>Todo App</h1>
         <p>Manage your tasks efficiently with priorities and categories.</p>
@@ -40,14 +74,15 @@ function App() {
         </div>
         
         <TaskStats stats={stats} />
-      <DragDropContext onDragEnd={onDragEnd}>
-        <TaskList
-          tasks={filteredTasks}
-          onUpdate={updateTask}
-          onDelete={deleteTask}
-          onDragEnd={onDragEnd}
-        />
-      </DragDropContext>    
+        
+        <DragDropContext onDragEnd={onDragEnd}>
+          <TaskList
+            tasks={filteredTasks}
+            onUpdate={updateTask}
+            onDelete={deleteTask}
+            onDragEnd={onDragEnd}
+          />
+        </DragDropContext>    
       </main>
     </div>
   );
