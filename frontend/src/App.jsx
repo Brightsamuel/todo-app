@@ -1,4 +1,5 @@
 import React from 'react';
+import { DragDropContext } from '@hello-pangea/dnd';
 import TaskInput from './components/TaskInput';
 import TaskList from './components/TaskList';
 import FilterButtons from './components/FilterButtons';
@@ -39,13 +40,14 @@ function App() {
         </div>
         
         <TaskStats stats={stats} />
-        
+      <DragDropContext onDragEnd={onDragEnd}>
         <TaskList
           tasks={filteredTasks}
           onUpdate={updateTask}
           onDelete={deleteTask}
           onDragEnd={onDragEnd}
         />
+      </DragDropContext>    
       </main>
     </div>
   );

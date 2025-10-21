@@ -16,14 +16,14 @@ A production-ready To-Do application built with React (frontend) and Node.js/Exp
 ### Bonus Features
 - **Filtering**: Show All/Active/Completed tasks.
 - **Search**: Real-time, debounced search by task title.
-- **Drag-and-Drop Reordering**: Intuitive reordering using `react-beautiful-dnd`.
+- **Drag-and-Drop Reordering**: Intuitive reordering using `@hello-pangea/dnd`.
 - **Statistics Dashboard**: Counts for total/active/completed/high-priority tasks.
 - **Responsive Design**: Mobile-friendly with gradients and modern UI.
 - **Accessibility**: ARIA labels, keyboard navigation.
 
 ## Technology Choices
 
-- **Frontend**: React 18 (hooks for state/logic), `react-beautiful-dnd` for drag-drop. Chosen for component reusability and performance.
+- **Frontend**: React 18 (hooks for state/logic), `@hello-pangea/dnd` for drag-drop. Chosen for component reusability and performance.
 - **Backend**: Node.js/Express (RESTful API), SQLite (lightweight DB for simplicity). Axios for HTTP client.
 - **Styling**: Vanilla CSS (no frameworks) for custom gradients/responsiveness.
 - **State Management**: Custom hooks (no Redux) to keep it lightweight.
@@ -104,4 +104,32 @@ This project demonstrates clean, scalable engineering without unnecessary comple
 
 ---
 
-*Built with ❤️ by [Your Name] | October 2025*
+*Built with ❤️ by [ BRIGHT ] | October 2025*
+
+## How to Run (Updated for Full-Stack)
+
+### Backend
+1. `cd backend`
+2. `npm install`
+3. `npm run dev` (runs on http://localhost:5000; creates `database.sqlite`)
+
+### Frontend
+1. `cd frontend`
+2. `npm install`
+3. Create `.env` with `REACT_APP_API_URL=http://localhost:5000/api`
+4. `npm start` (runs on http://localhost:3000)
+
+Test: Add tasks in frontend—they save to backend DB. Refresh: Persist. Drag-reorder: Updates order in DB.
+
+## API Documentation (Updated)
+| Endpoint | Method | Description | Body/Example |
+|----------|--------|-------------|--------------|
+| `/api/tasks` | GET | Fetch all (sorted by order) | - |
+| `/api/tasks` | POST | Create | `{ "text": "Buy milk", "priority": "low", "category": "shopping" }` |
+| `/api/tasks/:id` | PUT | Update (partial) | `{ "completed": true }` or `{ "text": "Updated" }` |
+| `/api/tasks/:id` | DELETE | Delete | - |
+| `/api/tasks/reorder` | PUT | Reorder | `{ "order": [1, 3, 2] }` (array of IDs) |
+
+## Future Improvements (Add)
+- **Backend**: Add auth (JWT), due dates, advanced queries (e.g., filter by category).
+- **Integration**: WebSocket for real-time sync (multi-user).

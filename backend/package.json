@@ -1,13 +1,28 @@
 {
-  "name": "backend",
+  "name": "todo-app-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Node.js/Express backend for Todo App with SQLite",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.1",
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "todo",
+    "express",
+    "sequelize",
+    "sqlite"
+  ],
+  "author": "Bright",
+  "license": "MIT"
 }

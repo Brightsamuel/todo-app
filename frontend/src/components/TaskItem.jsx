@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { formatDate, getPriorityClass } from '../utils/helpers';
-import { PRIORITIES } from '../constants/config';
 
 const TaskItem = ({ task, onUpdate, onDelete, provided, isDragging }) => {
   const [isEditing, setIsEditing] = useState(false);

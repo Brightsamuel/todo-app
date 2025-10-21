@@ -1,5 +1,5 @@
 import React from 'react';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 import TaskItem from './TaskItem';
 
 const TaskList = ({ tasks, onUpdate, onDelete, onDragEnd }) => {

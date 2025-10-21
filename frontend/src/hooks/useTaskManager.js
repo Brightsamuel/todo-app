@@ -1,27 +1,37 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { STORAGE_KEY, FILTERS, PRIORITIES } from '../constants/config';
+import { FILTERS, PRIORITIES, DEBOUNCE_DELAY } from '../constants/config';
 import { debounce } from '../utils/helpers';
-// Import taskAPI from '../services/api' when backend is ready
+import { taskAPI } from '../services/api';
 
-// Custom hook centralizing all task logic
-// Handles CRUD, filtering, search, persistence with optimistic updates
+// Custom hook centralizing all task logic (API-driven, graceful localStorage fallback for load)
 const useTaskManager = () => {
   const [tasks, setTasks] = useState([]);
   const [filter, setFilter] = useState(FILTERS.ALL);
   const [searchTerm, setSearchTermInternal] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Load tasks from localStorage (swap with taskAPI.getAll() later)
+  // Load tasks from API on mount, fallback to localStorage if API fails
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        setTasks(JSON.parse(saved));
+    const loadTasks = async () => {
+      setLoading(true);
+      try {
+        const { data } = await taskAPI.getAll();
+        setTasks(data || []);
+      } catch (error) {
+        console.error('Failed to load tasks from API:', error);
+        // Fallback to localStorage if API down
+        try {
+          const saved = localStorage.getItem('todo-tasks');
+          if (saved) setTasks(JSON.parse(saved));
+        } catch (fallbackError) {
+          console.error('Fallback load failed:', fallbackError);
+          setTasks([]);
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Failed to load tasks:', error);
-      setTasks([]);
-    }
+    };
+    loadTasks();
   }, []);
 
   // Debounced search setter
@@ -30,63 +40,76 @@ const useTaskManager = () => {
     []
   );
 
-  const setSearchTerm = (term) => debouncedSetSearch(term);
+  const setSearchTerm = useCallback((term) => {
+    if (!term) setSearchTermInternal('');
+    debouncedSetSearch(term);
+  }, [debouncedSetSearch]);
 
-  // Save to localStorage (swap with taskAPI calls)
-  const saveTasks = useCallback((updatedTasks) => {
-    try {
-      setTasks(updatedTasks);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedTasks));
-    } catch (error) {
-      console.error('Failed to save tasks:', error);
-    }
-  }, []);
-
-  // Create task (async for loading state and future API)
+  // Create task (async API call)
   const createTask = useCallback(async (newTask) => {
     setLoading(true);
     try {
-      const task = {
-        id: Date.now().toString(), // Temp ID; use UUID or backend-generated later
-        text: newTask.text,
-        completed: false,
-        priority: newTask.priority || PRIORITIES.MEDIUM,
-        category: newTask.category ? newTask.category.trim() : null,
-        created_at: new Date().toISOString()
-      };
-      saveTasks([task, ...tasks]);
+      const { data } = await taskAPI.create(newTask);
+      console.log('Created task:', data);
+      setTasks(prev => {
+        const updated = [data, ...prev];
+        console.log('New tasks state:', updated);
+        return updated;
+      }); // Optimistic add
     } catch (error) {
       console.error('Failed to create task:', error);
-      // Could throw or show error toast
     } finally {
       setLoading(false);
     }
-  }, [tasks, saveTasks]);
+  }, []);
 
-  // Update task (general for edit/toggle/reorder)
-  const updateTask = useCallback((id, updates) => {
-    saveTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, ...updates } : task
-      )
-    );
-  }, [tasks, saveTasks]);
+  // Update task (async API call)
+  const updateTask = useCallback(async (id, updates) => {
+    try {
+      const { data } = await taskAPI.update(id, updates);
+      console.log('Updated task:', data);
+      setTasks(prev => {
+        const updated = prev.map(task => task.id === id ? data : task);
+        console.log('State after update:', updated);
+        return updated;
+      }); // Optimistic update
+    } catch (error) {
+      console.error('Failed to update task:', error);
+    }
+  }, []);
 
-  // Delete task
-  const deleteTask = useCallback((id) => {
-    saveTasks(tasks.filter((task) => task.id !== id));
-  }, [tasks, saveTasks]);
+  // Delete task (async API call)
+  const deleteTask = useCallback(async (id) => {
+    try {
+      await taskAPI.delete(id);
+      console.log('Deleted task id:', id);
+      setTasks(prev => {
+        const updated = prev.filter(task => task.id !== id);
+        console.log('State after delete:', updated);
+        return updated;
+      }); // Optimistic delete
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
+  }, []);
 
-  // Drag-and-drop reorder (optimistic)
-  const onDragEnd = useCallback((result) => {
+  // Drag-and-drop reorder (async API call with ID array)
+  const onDragEnd = useCallback(async (result) => {
     if (!result.destination) return;
-    const newTasks = Array.from(tasks);
-    const [reorderedItem] = newTasks.splice(result.source.index, 1);
-    newTasks.splice(result.destination.index, 0, reorderedItem);
-    // Update order indices if backend expects
-    const orderedTasks = newTasks.map((task, index) => ({ ...task, order: index }));
-    saveTasks(orderedTasks);
-  }, [tasks, saveTasks]);
+    const newOrder = Array.from(tasks);
+    const [reorderedItem] = newOrder.splice(result.source.index, 1);
+    newOrder.splice(result.destination.index, 0, reorderedItem);
+    const orderIds = newOrder.map(task => task.id); // Send ID array
+
+    try {
+      await taskAPI.reorder(orderIds);
+      console.log('Reordered IDs sent:', orderIds);
+      console.log('State after reorder:', newOrder);
+      setTasks(newOrder); // Optimistic reorder
+    } catch (error) {
+      console.error('Failed to reorder tasks:', error);
+    }
+  }, [tasks]);
 
   // Filtered and searched tasks
   const filteredTasks = useMemo(() => {
