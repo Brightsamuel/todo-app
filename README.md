@@ -1,133 +1,61 @@
 # Todo App - Full-Stack Task Manager
 
-A production-ready To-Do application built with React (frontend) and Node.js/Express (backend). Users can create, view, edit, delete tasks with priorities and categories. Tasks persist across sessions via a SQLite database. Includes bonus features like filtering, real-time search, drag-and-drop reordering, and a stats dashboard.
+A production-ready To-Do app with React (frontend) and Node.js/Express (backend). Manage tasks with priorities, categories, filtering, search, drag-and-drop reordering, and a stats dashboard. Persists via SQLite DB.
 
 ## Features
+- **CRUD Tasks**: Create, view, edit, delete with title, priority (Low/Medium/High), category (Work/Personal/Shopping/Other).
+- **View & Sort**: List tasks with color-coded priorities, dates; ordered by position/creation.
+- **Filtering & Search**: All/Active/Completed views; real-time search by title/description.
+- **Reordering**: Drag-and-drop to rearrange tasks (updates DB order).
+- **Stats Dashboard**: Real-time counts (total/active/completed/high-priority).
+- **Responsive UI**: Mobile-friendly with gradients, icons (Lucide), accessibility (ARIA/keyboard).
+- **Persistence**: SQLite for full-stack; localStorage fallback.
 
-### Core Features
-- **Create Tasks**: Add tasks with title, priority (Low/Medium/High), and category (Work/Personal/Shopping/Other).
-- **View Tasks**: Display all tasks with color-coded priorities and creation dates.
-- **Edit Tasks**: Inline editing for titles; toggle completion status.
-- **Delete Tasks**: Remove tasks with confirmation (basic).
-- **Persistence**: Tasks saved to SQLite database (full-stack) or localStorage (frontend-only).
+## Tech Stack
+- **Frontend**: React 18 (hooks/state), `@hello-pangea/dnd` (reordering), Axios (API).
+- **Backend**: Node/Express (REST API), Sequelize/SQLite (DB).
+- **Styling**: Tailwind CSS (gradients/responsive).
+- **Other**: Debounced search, optimistic updates; ESLint/Prettier.
 
-### Bonus Features
-- **Filtering**: Show All/Active/Completed tasks.
-- **Search**: Real-time, debounced search by task title.
-- **Drag-and-Drop Reordering**: Intuitive reordering using `@hello-pangea/dnd`.
-- **Statistics Dashboard**: Counts for total/active/completed/high-priority tasks.
-- **Responsive Design**: Mobile-friendly with gradients and modern UI.
-- **Accessibility**: ARIA labels, keyboard navigation.
+## Architecture
+- **Layers**: UI (components), Logic (custom hooks), Data (service layer for DB swap).
+- **Principles**: Single-responsibility, DRY, error-handling; RESTful API; folder structure (components/hooks/services).
+- **Testing**: Unit/integration with Jest/Mocha (mocked, no externals).
 
-## Technology Choices
-
-- **Frontend**: React 18 (hooks for state/logic), `@hello-pangea/dnd` for drag-drop. Chosen for component reusability and performance.
-- **Backend**: Node.js/Express (RESTful API), SQLite (lightweight DB for simplicity). Axios for HTTP client.
-- **Styling**: Vanilla CSS (no frameworks) for custom gradients/responsiveness.
-- **State Management**: Custom hooks (no Redux) to keep it lightweight.
-- **Persistence**: SQLite for production-like setup; localStorage fallback for dev.
-- **Other**: Debouncing for search, optimistic updates for UX.
-
-## Architecture Decisions
-
-- **Separation of Concerns**: 
-  - UI: Small, single-responsibility components (e.g., `TaskItem` only renders one task).
-  - Logic: `useTaskManager` hook handles all business rules (CRUD, filter/search).
-  - Data: `api.js` service layer isolates persistence (easy to swap DBs).
-- **Clean Code Principles**: Readable functions, DRY (utils/helpers), error handling (try-catch), meaningful comments (why, not what). No over-abstraction—pragmatic React patterns.
-- **Folder Structure**: Logical grouping (components/hooks/services/utils/constants) for maintainability.
-- **API Design**: RESTful endpoints (GET/POST/PUT/DELETE `/tasks`). Interceptors for error/auth.
-- **Testing**: Unit-ready (e.g., hook testable in isolation); add Jest later.
-
-## How to Run
+## Quick Start
 
 ### Prerequisites
-- Node.js >= 18
-- npm/yarn
-
-### Frontend (Standalone - Uses localStorage)
-1. `cd frontend`
-2. `npm install`
-3. `npm start` (runs on http://localhost:3000)
-
-### Full-Stack (Frontend + Backend)
-1. **Backend**:
-   - `cd backend`
-   - `npm install`
-   - `npm run dev` (runs on http://localhost:3001)
-2. **Frontend**:
-   - In new terminal: `cd frontend`
-   - `npm install`
-   - Add `REACT_APP_API_URL=http://localhost:3001/api` to `.env`
-   - `npm start`
-3. Access app at http://localhost:3000. Tasks now persist via DB.
-
-### Development Scripts
-- Backend: `npm run dev` (nodemon for hot-reload)
-- Frontend: `npm start` (hot-reload)
-- Build: `npm run build` (frontend production build)
-
-## API Documentation
-
-Once backend is running:
-
-| Endpoint | Method | Description | Body/Example |
-|----------|--------|-------------|--------------|
-| `/api/tasks` | GET | Fetch all tasks | - |
-| `/api/tasks` | POST | Create task | `{ "title": "Buy milk", "priority": "low", "category": "shopping" }` |
-| `/api/tasks/:id` | PUT | Update task | `{ "title": "Updated", "completed": true }` |
-| `/api/tasks/:id` | DELETE | Delete task | - |
-| `/api/tasks/reorder` | PUT | Reorder tasks | `{ "order": [id1, id2, ...] }` |
-
-Responses: JSON with 200 OK or 4xx/5xx errors.
-
-## Future Improvements
-
-- **Authentication**: Add JWT for user-specific tasks.
-- **Advanced Search**: Filter by category/priority/date.
-- **Notifications**: Email/SMS for due dates (add `dueDate` field).
-- **Testing**: Full Jest/Cypress suite.
-- **Deployment**: Dockerize for Heroku/Vercel; migrate to PostgreSQL.
-- **PWA**: Offline support with Service Workers.
-- **Analytics**: Track user behavior with Google Analytics.
-
-## Code Quality Standards
-
-- **Linting**: ESLint + Prettier (add scripts if needed).
-- **Commit Style**: Conventional Commits.
-- **CI/CD**: GitHub Actions for tests/builds.
-- **Security**: Sanitize inputs; CORS in backend.
-
-This project demonstrates clean, scalable engineering without unnecessary complexity. Contributions welcome!
-
----
-
-*Built with ❤️ by [ BRIGHT ] | October 2025*
-
-## How to Run (Updated for Full-Stack)
+- Node.js ≥18, npm.
 
 ### Backend
 1. `cd backend`
 2. `npm install`
-3. `npm run dev` (runs on http://localhost:3001; creates `database.sqlite`)
+3. `npm run dev` (http://localhost:3001; auto-creates `database.sqlite`)
 
 ### Frontend
 1. `cd frontend`
 2. `npm install`
-3. Create `.env` with `REACT_APP_API_URL=http://localhost:3001/api`
-4. `npm start` (runs on http://localhost:3000)
+3. Add `.env`: `REACT_APP_API_URL=http://localhost:3001/api`
+4. `npm start` (http://localhost:3000)
 
-Test: Add tasks in frontend—they save to backend DB. Refresh: Persist. Drag-reorder: Updates order in DB.
+Test: Add tasks → Persist on refresh. Drag-reorder → Saves order.
 
-## API Documentation (Updated)
-| Endpoint | Method | Description | Body/Example |
-|----------|--------|-------------|--------------|
-| `/api/tasks` | GET | Fetch all (sorted by order) | - |
-| `/api/tasks` | POST | Create | `{ "text": "Buy milk", "priority": "low", "category": "shopping" }` |
-| `/api/tasks/:id` | PUT | Update (partial) | `{ "completed": true }` or `{ "text": "Updated" }` |
-| `/api/tasks/:id` | DELETE | Delete | - |
-| `/api/tasks/reorder` | PUT | Reorder | `{ "order": [1, 3, 2] }` (array of IDs) |
+## API Endpoints
+| Method | Endpoint | Description | Body Example |
+|--------|----------|-------------|--------------|
+| GET | `/api/tasks` | Fetch all (sorted by order/created_at) | - |
+| POST | `/api/tasks` | Create task | `{ "text": "Buy milk", "priority": "low", "category": "shopping" }` |
+| PUT | `/api/tasks/:id` | Update (partial) | `{ "text": "Updated", "completed": true }` |
+| DELETE | `/api/tasks/:id` | Delete | - |
+| PUT | `/api/tasks/reorder` | Reorder | `{ "order": [1, 3, 2] }` |
 
-## Future Improvements (Add)
-- **Backend**: Add auth (JWT), due dates, advanced queries (e.g., filter by category).
-- **Integration**: WebSocket for real-time sync (multi-user).
+Responses: JSON (200 OK or 4xx/5xx errors).
+
+## Future Ideas
+- JWT auth for users.
+- Due dates/notifications.
+- Advanced filters (category/priority).
+- Jest/Cypress tests; Docker deploy.
+- PWA offline support.
+
+Contributions welcome! Built with ❤️ by [BRIGHT] | October 2025
