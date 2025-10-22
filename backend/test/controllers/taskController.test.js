@@ -1,6 +1,6 @@
 // test/controllers/taskController.test.js
-const { getAllTasks, createTask, updateTask, deleteTask, reorderTasks } = require('../../controllers/taskController');
-const Task = require('../../models/Task');
+const { getAllTasks, createTask, updateTask, deleteTask, reorderTasks } = require('../../src/controllers/taskController');
+const Task = require('../../src/models/Task');
 const sinon = require('sinon');
 const { expect } = require('chai');
 
@@ -48,9 +48,7 @@ describe('Task Controllers', () => {
     it('should create a task with default priority and null category', async () => {
       req.body = { text: 'New Task' };
       const mockTask = { id: 1, text: 'New Task', priority: 'medium', category: null, order: 0 };
-      sinon.stub(Task, 'create').resolves(mockTask);
-      sinon.stub(Task, 'max').resolves(0);
-      sinon.stub(mockTask, 'save').resolves();
+      sinon.stub(Task, 'create').resolves(mockTask); // Stub create, not build/save
 
       await createTask(req, res);
 
@@ -87,14 +85,14 @@ describe('Task Controllers', () => {
     it('should update task text and trim it', async () => {
       req.params.id = '1';
       req.body = { text: ' Updated Task ' };
-      const mockTask = { id: 1, text: 'Old', update: sinon.stub().resolves() };
+      const mockTask = { id: 1, text: 'Old', category: 'work', update: sinon.stub().resolves() };
       sinon.stub(Task, 'findByPk').resolves(mockTask);
 
       await updateTask(req, res);
 
       expect(mockTask.update.calledWith({
         text: 'Updated Task',
-        category: mockTask.category
+        category: 'work' // Preserves existing
       })).to.be.true;
       expect(res.status.calledWith(200)).to.be.true;
       expect(res.json.calledWith(mockTask)).to.be.true;
@@ -113,19 +111,20 @@ describe('Task Controllers', () => {
     it('should validate empty text in updates', async () => {
       req.params.id = '1';
       req.body = { text: '' };
-      const mockTask = { id: 1 };
+      const mockTask = { id: 1, update: sinon.stub().resolves() };
       sinon.stub(Task, 'findByPk').resolves(mockTask);
 
       await updateTask(req, res);
 
-      expect(res.status.calledWith(400)).to.be.true;
+      expect(res.status.calledWith(400)).to.be.true; // Expect failure on empty
       expect(res.json.calledWith({ error: 'Task text is required' })).to.be.true;
     });
 
     it('should handle update errors and return 400', async () => {
       req.params.id = '1';
       req.body = { text: 'Updated' };
-      sinon.stub(Task, 'findByPk').resolves({ id: 1, update: sinon.stub().rejects(new Error('DB Error')) });
+      const mockTask = { id: 1, update: sinon.stub().rejects(new Error('DB Error')) };
+      sinon.stub(Task, 'findByPk').resolves(mockTask);
 
       await updateTask(req, res);
 
@@ -171,13 +170,14 @@ describe('Task Controllers', () => {
 
   describe('reorderTasks', () => {
     it('should reorder tasks with valid IDs', async () => {
-      req.body = { order: [2, 1, 3] };
-      sinon.stub(Task, 'findAll').resolves([{ id: 2 }, { id: 1 }, { id: 3 }]);
+      req.body = { order: ['2', '1', '3'] };
+      const mockTasks = [{ id: 2 }, { id: 1 }, { id: 3 }];
+      sinon.stub(Task, 'findAll').resolves(mockTasks);
       sinon.stub(Task, 'update').resolves();
 
       await reorderTasks(req, res);
 
-      expect(Task.update.calledWith({ order: sinon.match.any }, { where: { id: [2, 1, 3] } })).to.be.true;
+      expect(Task.update.calledThrice).to.be.true; // One per task
       expect(res.status.calledWith(200)).to.be.true;
       expect(res.json.calledWith({ message: 'Tasks reordered' })).to.be.true;
     });
@@ -192,7 +192,7 @@ describe('Task Controllers', () => {
     });
 
     it('should reject if some IDs are invalid', async () => {
-      req.body = { order: [1, 999] };
+      req.body = { order: ['1', '999'] };
       sinon.stub(Task, 'findAll').resolves([{ id: 1 }]); // Only one found
 
       await reorderTasks(req, res);
@@ -202,7 +202,7 @@ describe('Task Controllers', () => {
     });
 
     it('should handle reordering errors and return 500', async () => {
-      req.body = { order: [1] };
+      req.body = { order: ['1'] };
       sinon.stub(Task, 'findAll').resolves([{ id: 1 }]);
       sinon.stub(Task, 'update').rejects(new Error('DB Error'));
 

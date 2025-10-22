@@ -5,7 +5,7 @@ const Task = require('../models/Task');
 const getAllTasks = async (req, res) => {
   try {
     const tasks = await Task.findAll({
-      order: [['order', 'ASC'], ['created_at', 'ASC']] // Default sort by order then creation
+      order: [['order', 'ASC'], ['created_at', 'ASC']] 
     });
     res.status(200).json(tasks);
   } catch (error) {
@@ -13,7 +13,7 @@ const getAllTasks = async (req, res) => {
   }
 };
 
-// POST create task
+// POST for creating task
 const createTask = async (req, res) => {
   try {
     const { text, priority, category } = req.body;
@@ -38,7 +38,6 @@ const createTask = async (req, res) => {
   }
 };
 
-// PUT update task by ID (partial updates for toggle/edit)
 const updateTask = async (req, res) => {
   try {
     const { id } = req.params;
@@ -66,7 +65,6 @@ const updateTask = async (req, res) => {
   }
 };
 
-// DELETE task by ID
 const deleteTask = async (req, res) => {
   try {
     const { id } = req.params;
@@ -98,7 +96,7 @@ const reorderTasks = async (req, res) => {
 
     // Update orders transactionally
     await Task.update(
-      { order: order.indexOf(id) }, // 0-based index
+      { order: order.indexOf(id) },
       { where: { id: order } }
     );
 

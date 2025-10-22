@@ -1,6 +1,6 @@
 // test/models/Task.test.js
-const Task = require('../../models/Task');
-const sequelize = require('../../config/database');
+const Task = require('../../src/models/Task');
+const sequelize = require('../../src/config/database');
 const { expect } = require('chai');
 const sinon = require('sinon');
 

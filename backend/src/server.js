@@ -4,36 +4,35 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const errorHandler = require('./middleware/errorHandler');
-const sequelize = require('./config/database'); // Import for global sync
+const sequelize = require('./config/database'); 
 
 const app = express();
-const PORT = process.env.PORT || 3001; // Avoid 3000 conflict
+const PORT = process.env.PORT || 3001;
+const IS_DEV = process.env.NODE_ENV === 'development';
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000' })); // Allow frontend
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded
+app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Force load models (attaches to sequelize instance)
 try {
-  require('./models/Task'); // Triggers define
-  console.log('✅ Models loaded successfully');
+  require('./models/Task'); // Triggers defines
+  if (IS_DEV) console.log('✅ Models loaded');
 } catch (error) {
   console.error('❌ Model load FAILED:', error.message);
   process.exit(1);
 }
 
-// Global sync for all models (creates DB/tables reliably)
+// Sync DB (dev: alter; prod: false for safety)
 const syncDatabase = async () => {
   try {
-    await sequelize.sync({ alter: true }); // Temp force for reset; change to alter later
-    console.log('✅ All models synced (table recreated)');
-    
-    // Log DB file post-sync
-    const dbPath = path.resolve(__dirname, '..', 'database.sqlite');
-    const fs = require('fs');
-    if (fs.existsSync(dbPath)) {
-      console.log('📁 DB file created at:', dbPath);
+    const syncOpts = IS_DEV ? { alter: true } : { force: false };
+    await sequelize.sync(syncOpts);
+    if (IS_DEV) {
+      console.log('✅ DB synced');
+      const dbPath = path.resolve(__dirname, '..', 'database.sqlite');
+      const fs = require('fs');
+      if (fs.existsSync(dbPath)) console.log('📁 DB at:', dbPath);
     }
   } catch (error) {
     console.error('❌ Sync FAILED:', error.message);
@@ -41,57 +40,39 @@ const syncDatabase = async () => {
   }
 };
 
-// Run sync before routes/listen
-syncDatabase().then(async () => {
-  // Load routes with error handling
-  let taskRoutes;
+const mountRoutes = () => {
   try {
-    taskRoutes = require('./routes/taskRoutes');
-    console.log('✅ Task routes loaded successfully');
-    
-    // Log mounted routes for debug
-    console.log('🔍 Mounted routes:');
-    taskRoutes.stack.forEach((layer) => {
-      if (layer.route) {
-        console.log(`  - ${Object.keys(layer.route.methods).join(', ')} ${layer.regexp}`);
-      }
-    });
-  } catch (error) {
-    console.error('❌ Routes load FAILED:', error.message);
-    // Temp fallback: Add a dummy route to test
-    app.get('/api/tasks', (req, res) => res.json([]));
-    app.post('/api/tasks', (req, res) => res.status(201).json({ id: 999, text: 'Dummy' }));
-    console.log('🔧 Added dummy routes for testing');
-  }
-
-  // Mount routes (or dummy if failed)
-  if (taskRoutes) {
+    const taskRoutes = require('./routes/taskRoutes');
+    if (IS_DEV) {
+      console.log('✅ Routes mounted')
+      taskRoutes.stack.forEach((layer) => {
+        if (layer.route) {
+          const methods = Object.keys(layer.route.methods).join(', ');
+          const path = layer.regexp.source.replace(/^\^\\\//, '').replace(/\\\/\\?.*$/, '');
+          console.log(`  - ${methods} ${path}`);
+        }
+      });
+    }
     app.use('/api/tasks', taskRoutes);
+  } catch (error) {
+    console.error('❌ Routes FAILED:', error.message);
+    process.exit(1); 
   }
+};
 
-  // Test route to verify mounting works
-  app.get('/test', (req, res) => {
-    res.json({ message: 'Routes working!', timestamp: new Date() });
-  });
+app.get('/health', (req, res) => res.status(200).json({ status: 'OK', db: 'Connected' }));
 
-  // Global error handler (last)
-  app.use(errorHandler);
-
-  // Health check (enhanced)
-  app.get('/health', (req, res) => res.status(200).json({ status: 'OK', db: 'Connected', routes: 'Loaded' }));
-
-  // 404 for undefined routes (keep last)
-  app.use('*', (req, res) => {
-    console.log(`❌ 404 Hit: ${req.method} ${req.originalUrl}`); // Log unmatched
-    res.status(404).json({ error: 'Route not found' });
-  });
-
+app.use(errorHandler);
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+syncDatabase().then(mountRoutes).then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`🧪 Test: http://localhost:${PORT}/test (should return JSON)`);
+    console.log(`🚀 Server on http://localhost:${PORT}`);
+    if (IS_DEV) console.log(`🧪 Health: http://localhost:${PORT}/health`);
   });
 }).catch(err => {
-  console.error('❌ Startup error:', err);
+  console.error('❌ Startup FAILED:', err);
   process.exit(1);
 });
 

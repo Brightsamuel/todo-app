@@ -10,7 +10,6 @@ const useTaskManager = () => {
   const [searchTerm, setSearchTermInternal] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Load tasks from API on mount, fallback to localStorage if API fails
   useEffect(() => {
     const loadTasks = async () => {
       setLoading(true);
@@ -18,8 +17,7 @@ const useTaskManager = () => {
         const { data } = await taskAPI.getAll();
         setTasks(data || []);
       } catch (error) {
-        console.error('Failed to load tasks from API:', error);
-        // Fallback to localStorage if API down
+        console.error('Failed to load tasks from API:', error)
         try {
           const saved = localStorage.getItem('todo-tasks');
           if (saved) setTasks(JSON.parse(saved));
@@ -45,7 +43,6 @@ const useTaskManager = () => {
     debouncedSetSearch(term);
   }, [debouncedSetSearch]);
 
-  // Create task (async API call)
   const createTask = useCallback(async (newTask) => {
     setLoading(true);
     try {
@@ -55,7 +52,7 @@ const useTaskManager = () => {
         const updated = [data, ...prev];
         console.log('New tasks state:', updated);
         return updated;
-      }); // Optimistic add
+      }); 
     } catch (error) {
       console.error('Failed to create task:', error);
     } finally {
@@ -63,7 +60,6 @@ const useTaskManager = () => {
     }
   }, []);
 
-  // Update task (async API call)
   const updateTask = useCallback(async (id, updates) => {
     try {
       const { data } = await taskAPI.update(id, updates);
@@ -72,13 +68,11 @@ const useTaskManager = () => {
         const updated = prev.map(task => task.id === id ? data : task);
         console.log('State after update:', updated);
         return updated;
-      }); // Optimistic update
+      }); 
     } catch (error) {
       console.error('Failed to update task:', error);
     }
   }, []);
-
-  // Delete task (async API call)
   const deleteTask = useCallback(async (id) => {
     try {
       await taskAPI.delete(id);
@@ -87,25 +81,24 @@ const useTaskManager = () => {
         const updated = prev.filter(task => task.id !== id);
         console.log('State after delete:', updated);
         return updated;
-      }); // Optimistic delete
+      }); 
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
   }, []);
 
-  // Drag-and-drop reorder (async API call with ID array)
   const onDragEnd = useCallback(async (result) => {
     if (!result.destination) return;
     const newOrder = Array.from(tasks);
     const [reorderedItem] = newOrder.splice(result.source.index, 1);
     newOrder.splice(result.destination.index, 0, reorderedItem);
-    const orderIds = newOrder.map(task => task.id); // Send ID array
+    const orderIds = newOrder.map(task => task.id); 
 
     try {
       await taskAPI.reorder(orderIds);
       console.log('Reordered IDs sent:', orderIds);
       console.log('State after reorder:', newOrder);
-      setTasks(newOrder); // Optimistic reorder
+      setTasks(newOrder);
     } catch (error) {
       console.error('Failed to reorder tasks:', error);
     }

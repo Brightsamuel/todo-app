@@ -1,4 +1,3 @@
-// Centralized constants to avoid magic strings
 export const PRIORITIES = {
   HIGH: 'high',
   MEDIUM: 'medium',

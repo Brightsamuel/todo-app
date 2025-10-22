@@ -1,4 +1,3 @@
-// test/hooks/useTaskManager.test.js
 import { renderHook, waitFor } from '@testing-library/react';
 import { act } from 'react';
 import useTaskManager from '../../hooks/useTaskManager';

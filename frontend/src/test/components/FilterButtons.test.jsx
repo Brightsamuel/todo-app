@@ -1,4 +1,3 @@
-// test/components/FilterButtons.test.jsx
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import FilterButtons from '../../components/FilterButtons';

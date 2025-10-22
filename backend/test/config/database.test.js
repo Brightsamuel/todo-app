@@ -1,5 +1,5 @@
 // test/config/database.test.js
-const sequelize = require('../../config/database');
+const sequelize = require('../../src/config/database');
 const { expect } = require('chai');
 const sinon = require('sinon');
 

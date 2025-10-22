@@ -33,13 +33,11 @@ const Task = sequelize.define('Task', {
   },
   order: {
     type: DataTypes.INTEGER,
-    defaultValue: 0 // For drag-drop reordering
+    defaultValue: 0 
   }
 }, {
-  timestamps: false, // Disable createdAt/updatedAt; use custom created_at
+  timestamps: false, 
   tableName: 'tasks'
 });
-
-// No sync here—handled globally in server.js
 
 module.exports = Task;

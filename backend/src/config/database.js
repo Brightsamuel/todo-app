@@ -5,16 +5,15 @@ const path = require('path'); // For absolute paths
 const fs = require('fs'); // For file checks
 
 // Absolute path to backend root (not src/)
-const dbPath = path.resolve(__dirname, '../../database.sqlite'); // .. up to backend root
+const dbPath = path.resolve(__dirname, '../../database.sqlite'); 
 console.log('🔧 Target DB path:', dbPath); // Log for verification
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: dbPath,
-  logging: console.log, // Keep for debug
+  logging: console.log, // for debugging
 });
 
-// Test connection with better logging
 const testConnection = async () => {
   try {
     await sequelize.authenticate();

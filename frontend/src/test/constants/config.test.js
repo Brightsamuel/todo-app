@@ -1,7 +1,6 @@
-// test/constants/config.test.js
 // Note: Constants don't typically need tests, but we can verify exports if needed
 const { PRIORITIES, FILTERS, STORAGE_KEY, DEBOUNCE_DELAY } = require('../../constants/config');
-const { expect } = require('@jest/globals'); // Or chai if preferred
+const { expect } = require('@jest/globals'); 
 
 describe('Config Constants', () => {
   it('should export PRIORITIES object with correct values', () => {

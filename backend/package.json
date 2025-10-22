@@ -5,7 +5,10 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "test": "mocha test/**/*.test.js --require test/testHelper.js --exit --timeout 10000 --experimental-vm-modules",
+    "test:watch": "mocha test/**/*.test.js --require test/testHelper.js --watch --exit --timeout 10000",
+    "test:coverage": "nyc mocha test/**/*.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -16,8 +19,11 @@
   },
   "devDependencies": {
     "chai": "^6.2.0",
+    "chai-as-promised": "^8.0.2",
+    "mocha": "^10.8.2",
     "nodemon": "^3.0.1",
-    "sinon": "^21.0.0"
+    "sinon": "^21.0.0",
+    "supertest": "^7.1.4"
   },
   "keywords": [
     "todo",

@@ -1,5 +1,5 @@
 // test/middleware/errorHandler.test.js
-const errorHandler = require('../../middleware/errorHandler');
+const errorHandler = require('../../src/middleware/errorHandler');
 const sinon = require('sinon');
 const { expect } = require('chai');
 

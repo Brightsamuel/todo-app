@@ -2,8 +2,6 @@
 
 A production-ready To-Do application built with React (frontend) and Node.js/Express (backend). Users can create, view, edit, delete tasks with priorities and categories. Tasks persist across sessions via a SQLite database. Includes bonus features like filtering, real-time search, drag-and-drop reordering, and a stats dashboard.
 
-![App Screenshot](https://via.placeholder.com/800x600?text=Todo+App+Screenshot) <!-- Add real screenshot later -->
-
 ## Features
 
 ### Core Features
@@ -56,11 +54,11 @@ A production-ready To-Do application built with React (frontend) and Node.js/Exp
 1. **Backend**:
    - `cd backend`
    - `npm install`
-   - `npm run dev` (runs on http://localhost:5000)
+   - `npm run dev` (runs on http://localhost:3001)
 2. **Frontend**:
    - In new terminal: `cd frontend`
    - `npm install`
-   - Add `REACT_APP_API_URL=http://localhost:5000/api` to `.env`
+   - Add `REACT_APP_API_URL=http://localhost:3001/api` to `.env`
    - `npm start`
 3. Access app at http://localhost:3000. Tasks now persist via DB.
 
@@ -111,12 +109,12 @@ This project demonstrates clean, scalable engineering without unnecessary comple
 ### Backend
 1. `cd backend`
 2. `npm install`
-3. `npm run dev` (runs on http://localhost:5000; creates `database.sqlite`)
+3. `npm run dev` (runs on http://localhost:3001; creates `database.sqlite`)
 
 ### Frontend
 1. `cd frontend`
 2. `npm install`
-3. Create `.env` with `REACT_APP_API_URL=http://localhost:5000/api`
+3. Create `.env` with `REACT_APP_API_URL=http://localhost:3001/api`
 4. `npm start` (runs on http://localhost:3000)
 
 Test: Add tasks in frontend—they save to backend DB. Refresh: Persist. Drag-reorder: Updates order in DB.
